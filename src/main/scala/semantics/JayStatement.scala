@@ -44,8 +44,8 @@ sealed abstract class JayStatement {
 
 }
 case class Assignment(target : String, exp : JayExpression) extends JayStatement
-case class Conditional(test : JayExpression, thenpart : JayExpression, elsepart : Expression) extends JayStatement
-case class Loop(test : JayExpression, body : JayExpression) extends JayStatement
+case class Conditional(test : JayExpression, thenpart : JayStatement, elsepart : JayStatement) extends JayStatement
+case class Loop(test : JayExpression, body : JayStatement) extends JayStatement
 case class Block(body : List[JayStatement]) extends JayStatement
 
 
