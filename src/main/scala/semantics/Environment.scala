@@ -10,14 +10,14 @@ class Environment(val mapping : Map[String, (JayType, JayValue)]) {
   def retrieve(name : String) : Option[(JayType, JayValue)] =
     mapping.get(name)
 
-  def retrieveType(name : String) = retrieve(name) match {
+  def retrieveType(name : String) : Option[JayType] = retrieve(name) match {
     case None => None
-    case Some((t, v)) => t
+    case Some((t, v)) => Some(t)
   }
 
-  def retrieveValue(name : String) = retrieve(name) match {
+  def retrieveValue(name : String) : Option[JayValue] = retrieve(name) match {
     case None => None
-    case Some((t, v)) => v
+    case Some((t, v)) => Some(v)
   }
 
   def declare(name : String, typeOf : JayType) : Environment =
