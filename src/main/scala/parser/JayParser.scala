@@ -75,14 +75,28 @@ class JayParser(val input : ParserInput) extends Parser {
     ParseJayExpression ~> (x => Expression(x))
   }
 
+  def ParseBlock : Rule1[JayStatement] = rule {
+    zeroOrMore(ParseJayStatement) ~> ((stmnts : Seq[JayStatement]) => Block(stmnts))
+  }
+
+
+  def ParseMultipleStatements : Rule1[Seq[Node]] = rule {
+    zeroOrMore(ParseStatement).separatedBy(ParseMaybeWhiteSpace)
+  }
+
+  def ParseStatement : Rule1[Node] = rule {
+    ParseJayStatement ~> ((x : JayStatement) => Statement(x))
+  }
+
+
   def ParseJayStatement : Rule1[JayStatement] = rule {
-    (ParseAssignment | )
+    (ParseAssignment | ParseBlock)
   }
 
   def ParseConditionalStatement : Rule1[JayStatement] = rule {
     ("if" ~ ParseMaybeWhiteSpace ~ "(" ~ ParseMaybeWhiteSpace
       ~ ParseJayExpression ~ ")" ~ ParseMaybeWhiteSpace ~ "{" ~
-      ParseMaybeWhiteSpace )
+      ParseMaybeWhiteSpace  )
   }
 
   def ParseAssignment : Rule1[JayStatement] = rule {
