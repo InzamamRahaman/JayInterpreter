@@ -5,11 +5,13 @@ package semantics
  */
 
 import interpreter.Interpreter.State
+import scala.annotation.tailrec
+
 
 sealed abstract class JayExpression {
 
 
-  def binOperationMatch(op: JayBinOp, val1: JayValue, val2: JayValue): Either[JayValue, String] =
+  private def binOperationMatch(op: JayBinOp, val1: JayValue, val2: JayValue): Either[JayValue, String] =
     (op, val1.getCorrectType, val2.getCorrectType) match {
       case ((JayBinArithOp(op1), JayInt, JayInt)) => Left(op1.eval(val1, val2))
       case ((JayBinRelOp(op1), JayInt, JayInt)) => Left(op1.eval(val1, val2))
@@ -17,12 +19,13 @@ sealed abstract class JayExpression {
       case _ => Right("Error, incompatiable types and operation")
     }
 
-  def unaryOperationMatch(op : JayUnaryOp, val1 : JayValue) : Either[JayValue, String] = val1 match {
+  private def unaryOperationMatch(op : JayUnaryOp, val1 : JayValue) : Either[JayValue, String] = val1 match {
     case JayInt(_) => Right("Error, incompatible types and operation")
     case JayBool(b) => op match {
       case JayUnaryOp(op1) => Left(op1.eval(val1))
     }
   }
+
 
   def internalEval(env : Environment) : Either[(JayValue, Environment), String] = this match {
     case Value(exp) => Left((exp, env))
