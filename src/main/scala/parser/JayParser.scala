@@ -11,7 +11,9 @@ import semantics._
 class JayParser(val input : ParserInput) extends Parser {
 
 
-  def InputLine = rule { "Hi" ~ EOI }
+  def InputLine : Rule1[Node] = rule {
+    ParseDeclaration ~ EOI ~> ((xs : Seq[Node]) => Programme(xs))
+  }
 
 
   def ParseLineTerminator : Rule0 = rule {
@@ -49,8 +51,76 @@ class JayParser(val input : ParserInput) extends Parser {
       ((td : JayType, sSeq : Seq[String]) => sSeq.map(s => Declaration(s, td)))
   }
 
-  def ParseMultipleDeclarations: Rule1[Seq[Node]] = rule {
-    zeroOrMore(ParseDeclaration) ~> ((x : Seq[Seq[Node]]) => x.flatten.toList)
+  def ParseIdentInExpression : Rule1[JayExpression] = rule {
+    ParseIdentifier ~> (x => Variable(x))
   }
+
+  def ParseTrue : Rule1[JayValue] = rule {
+    "true" ~> (() => JayBool(true))
+  }
+
+  def ParseFalse : Rule1[JayValue] = rule {
+    "false" ~> (() => JayBool(false))
+  }
+
+  def ParseInteger : Rule1[JayValue] = rule {
+    capture(oneOrMore(CharPredicate.Digit)) ~> ((x : String) => JayInt(x.toInt))
+  }
+
+  def ParseValue : Rule1[JayExpression] = rule {
+    (ParseTrue | ParseFalse | ParseInteger) ~> ((x : JayValue) => Value(x))
+  }
+
+  def ParseExpression : Rule1[Node] = rule {
+    ParseJayExpression ~> (x => Expression(x))
+  }
+
+  def ParseJayExpression : Rule1[JayExpression] = rule {
+    (ParseIdentInExpression | ParseValue | ParseBinaryOperation)
+  }
+
+  def stringToBinOp(str : String) : JayBinOp = str match {
+    case "+" => JayBinArithOp(Plus)
+    case "-" => JayBinArithOp(Minus)
+    case "*" => JayBinArithOp(Mult)
+    case "/" => JayBinArithOp(Div)
+    case "&&" => JayBinBoolOp(AND)
+    case "||" => JayBinBoolOp(OR)
+    case "==" => JayBinRelOp(EQ)
+    case "!=" => JayBinRelOp(NEQ)
+    case ">" => JayBinRelOp(GT)
+    case ">=" => JayBinRelOp(GTE)
+    case "<" => JayBinRelOp(LT)
+    case "<=" => JayBinRelOp(LTE)
+    case _ => throw new IllegalArgumentException("Not a known binary operation")
+  }
+
+  def ParseBinOp : Rule1[JayBinOp] = rule {
+    capture("+" | "-" | "/" | "*"| ">" | "<" | "&&" | "||" | ">=" | "<=" | "==" | "!=") ~>
+      (str => stringToBinOp(str))
+  }
+
+  def ParseBinaryOperation : Rule1[JayExpression] = rule {
+    (ParseJayExpression ~ ParseBinOp ~ ParseJayExpression) ~>
+      ((x : JayExpression, y : JayBinOp, z : JayExpression) => BinExpression(y, x, z))
+  }
+
+  def stringToUnaryOp(str : String) = str match {
+    case "!" => JayUnaryOp(Negate)
+    case _ => throw new IllegalArgumentException("No such valid unary operator")
+  }
+
+  def ParseUnaryOp : Rule1[JayUnaryOp] = rule {
+    capture("!") ~> (str => stringToUnaryOp(str))
+  }
+
+  def ParseUnaryOperation : Rule1[JayExpression] = rule {
+    (ParseUnaryOp ~ ParseJayExpression) ~>
+      ((a : JayUnaryOp, b : JayExpression) => UnaryExpression(a, b))
+  }
+
+//  def ParseMultipleDeclarations: Rule1[Seq[Node]] = rule {
+//    zeroOrMore(ParseDeclaration) ~> ((x : Seq[Seq[Node]]) => x.flatten.toList)
+//  }
 
 }
