@@ -13,17 +13,17 @@ sealed abstract class JayExpression {
 
   private def binOperationMatch(op: JayBinOp, val1: JayValue, val2: JayValue): Either[JayValue, String] =
     (op, val1.getCorrectType, val2.getCorrectType) match {
-      case ((JayBinArithOp(op1), JayInt, JayInt)) => Left(op1.eval(val1, val2))
-      case ((JayBinRelOp(op1), JayInt, JayInt)) => Left(op1.eval(val1, val2))
-      case ((JayBinBoolOp(op1), JayBool, JayBool)) => Left(op1.eval(val1, val2))
+      case (JayBinArithOp(op1), JInt, JInt) => Left(op1.eval(val1, val2))
+      case ((JayBinRelOp(op1), JInt, JInt)) => Left(op1.eval(val1, val2))
+      case ((JayBinBoolOp(op1), JBool, JBool)) => Left(op1.eval(val1, val2))
       case _ => Right("Error, incompatiable types and operation")
     }
 
   private def unaryOperationMatch(op : JayUnaryOp, val1 : JayValue) : Either[JayValue, String] = val1 match {
-    case JayInt(_) => Right("Error, incompatible types and operation")
     case JayBool(b) => op match {
       case JayUnaryOp(op1) => Left(op1.eval(val1))
     }
+    case _ => Right("Error, incompatible types and operation")
   }
 
 
@@ -38,9 +38,9 @@ sealed abstract class JayExpression {
         case Left(res) => Left(res, env)
         case Right(err) => Right(err)
       }
+      case ((Right(err1), Right(err2))) => Right(err1 + ". " + err2)
       case (_, Right(err2)) => Right(err2)
       case (Right(err1), _) => Right(err1)
-      case ((Right(err1), Right(err2))) => Right(err1 + ". " + err2)
     }
     case UnaryExpression(op, exp1) => (exp1.internalEval(env)) match {
       case Left(p1) => unaryOperationMatch(op, p1._1) match {
@@ -53,11 +53,11 @@ sealed abstract class JayExpression {
   }
 
 }
-case class BinExpression(op : JayBinOp, exp1 : JayExpression, exp2 : JayExpression)
-case class UnaryExpression(op : JayUnaryOp, exp1 : JayExpression)
-case class Value(exp1 : JayValue)
+case class BinExpression(op : JayBinOp, exp1 : JayExpression, exp2 : JayExpression) extends JayExpression
+case class UnaryExpression(op : JayUnaryOp, exp1 : JayExpression) extends JayExpression
+case class Value(exp1 : JayValue) extends JayExpression
 //case class Assignment(destination : String, source : JayExpression)
-case class Variable(exp1 : String)
+case class Variable(exp1 : String) extends JayExpression
 
 //case Assignment(dest, source) => source.internalEval(env) match {
 //case Right(err) => Right(err)

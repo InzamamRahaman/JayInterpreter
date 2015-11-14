@@ -19,16 +19,10 @@ object Interpreter {
 
   private def interpretNode(node : Node, env : Environment) : State = node match {
     case Declaration(name, typeOf) => Left(env.declare(name, typeOf))
+    case _ => Right("full functionality not yet implemented")
   }
 
-  private def interpretExpression(node : Node, state : State) : State = node match {
-    case Expression(exp) => exp match {
-      case BinExpression(op, exp1, exp2) => {
-        val res1 = interpretExpression(exp1)
-        val res2 = interpretExpression(exp2)
-      }
-    }
-  }
+
 
   def interpret(prog : Node) : State = prog match {
     case Programme(nodes) =>

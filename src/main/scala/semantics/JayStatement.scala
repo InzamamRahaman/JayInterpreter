@@ -32,7 +32,7 @@ sealed abstract class JayStatement {
       case loop @ Loop(test, body) => test.internalEval(env) match {
         case Right(err) => Right(err)
         case Left((value, env1)) => value match {
-          case (JayBool(false) | JayBool(0)) => Left(env1)
+          case (JayBool(false) | JayInt(0)) => Left(env1)
           case _ => body.internalEval(env1) match {
             case Right(err) => Right(err)
             case Left((value2, env2)) => loop.eval(Left(env2))
@@ -43,9 +43,9 @@ sealed abstract class JayStatement {
   }
 
 }
-case class Assignment(target : String, exp : JayExpression)
-case class Conditional(test : JayExpression, thenpart : JayExpression, elsepart : Expression)
-case class Loop(test : JayExpression, body : JayExpression)
-case class Block(body : List[JayStatement])
+case class Assignment(target : String, exp : JayExpression) extends JayStatement
+case class Conditional(test : JayExpression, thenpart : JayExpression, elsepart : Expression) extends JayStatement
+case class Loop(test : JayExpression, body : JayExpression) extends JayStatement
+case class Block(body : List[JayStatement]) extends JayStatement
 
 
