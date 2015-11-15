@@ -12,21 +12,27 @@ class JayParser(val input : ParserInput) extends Parser {
 
 
   def InputLine : Rule1[Node] = rule {
-    ParseMultipleDeclaration ~ EOI ~> ((xs : Seq[Node]) => Programme(xs))
+    ParseProgramme ~ EOI ~> ((xs : Node) => xs)
   }
 
 
   // Importants constant parsers
   def wps : Rule0 = rule(zeroOrMore(' '))
   def nls : Rule0 = rule(zeroOrMore('\n'))
-  def blnk : Rule0 = rule(wps | nls)
+  def blnk : Rule0 = rule(zeroOrMore(anyOf(" \n")))//rule(wps | nls)
 
   implicit def whps(s : String) : Rule0 = rule {
     str(s) ~ blnk
   }
   
+//  def ParseProgramme : Rule1[Node] = rule {
+//    blnk ~ Void ~ ParseMain ~ lcb ~ ParseMultipleDeclaration ~ blnk ~ rcb ~>
+//      ((xs : Seq[Node]) => 
+//        Programme(xs.toList))
+//  }
+  
   def ParseProgramme : Rule1[Node] = rule {
-    Void ~ ParseMain ~ lcb ~ ParseMultipleDeclaration ~ blnk ~
+    blnk ~ Void ~ ParseMain ~ lcb ~ ParseMultipleDeclaration ~ blnk ~
     ParseMultipleStatements ~ blnk ~ rcb ~>
       ((xs : Seq[Node], ys : Seq[Node]) => 
         Programme(xs.toList ++ ys.toList))
@@ -152,7 +158,7 @@ class JayParser(val input : ParserInput) extends Parser {
   }
   
   def ParseJayStatement : Rule1[JayStatement] = rule {
-    (ParseAssignment | ParseBlock | ParseConditional)
+    (ParseAssignment | ParseConditional | ParseLoop)
   }
   
   def ParseAssignment : Rule1[JayStatement] = rule {

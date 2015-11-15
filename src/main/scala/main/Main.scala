@@ -3,6 +3,7 @@ package main
 import interpreter._
 import semantics._
 import parser._
+import scala.util.Try
 
 
 /**
@@ -22,12 +23,16 @@ object Main {
     val sampleFactorial = 
       """
       void main() {
+        int x;
+        int z;
+        bool y;
+        x = 2;
       
       }  
-      """.filter(_ != ' ')
+      """
     val parserResults = new JayParser(sampleFactorial).InputLine.run()
     println(parserResults)
-
+    
 
   }
 
