@@ -23,16 +23,19 @@ object Main {
     val sampleFactorial = 
       """
       void main() {
-        int x;
-        int z;
         bool y;
-        x = 2;
-      
+        int x;
+        
       }  
       """
+    
+    
     val parserResults = new JayParser(sampleFactorial).InputLine.run()
     println(parserResults)
     
+    val str = "x + x"
+    val res1 = new JayParser(str).ParseJayExpression.run()
+    println(res1)
 
   }
 

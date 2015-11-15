@@ -104,11 +104,11 @@ class JayParser(val input : ParserInput) extends Parser {
 
   // Rules for parsing expressions
   def True : Rule1[JayValue] = rule {
-    (whps("true") ~ LEnd) ~> (() => JayBool(true))
+    (whps("true")) ~> (() => JayBool(true))
   }
 
   def False : Rule1[JayValue] = rule {
-    (whps("false") ~ LEnd) ~> (() => JayBool(false))
+    (whps("false")) ~> (() => JayBool(false))
   }
 
   def convertToInt(sign : Option[String], body : String) = sign match {
@@ -133,7 +133,7 @@ class JayParser(val input : ParserInput) extends Parser {
   }
 
   def ParseJayExpression : Rule1[JayExpression] = rule {
-    (ParseValues | ParseVariable | ParseUnaryOperation | ParseBinExpression)
+    (ParseBinExpression | ParseValues | ParseVariable | ParseUnaryOperation)
   }
 
   def ParseUnaryOperation : Rule1[JayExpression] = rule {
@@ -141,7 +141,7 @@ class JayParser(val input : ParserInput) extends Parser {
   }
 
   def ParseBinExpression : Rule1[JayExpression] = rule {
-    ParseJayExpression ~ ParseBinOp ~ ParseJayExpression ~> 
+    ParseJayExpression ~ blnk ~ ParseBinOp ~ blnk ~ ParseJayExpression ~> 
       ((exp1 : JayExpression, op : String, exp2 : JayExpression) => 
         BinExpression(stringToBinOp(op), exp1, exp2))
   }
