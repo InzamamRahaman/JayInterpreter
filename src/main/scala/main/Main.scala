@@ -2,6 +2,7 @@ package main
 
 import interpreter._
 import semantics._
+import parser._
 
 
 /**
@@ -17,6 +18,15 @@ object Main {
       case Right(err) => println(err)
       case Left(env) => println(env.mapping.foreach(println))
     }
+    
+    val sampleFactorial = 
+      """
+      void main() {
+      
+      }  
+      """.filter(_ != ' ')
+    val parserResults = new JayParser(sampleFactorial).InputLine.run()
+    println(parserResults)
 
 
   }
