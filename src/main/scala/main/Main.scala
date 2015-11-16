@@ -33,7 +33,7 @@ object Main {
     val parserResults = new JayParser(sampleFactorial).InputLine.run()
     println(parserResults)
     
-    val str = "x + x"
+    val str = "x + x * 2"
     val res1 = new JayParser(str).ParseJayExpression.run()
     println(res1)
 

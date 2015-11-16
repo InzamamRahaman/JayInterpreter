@@ -132,8 +132,12 @@ class JayParser(val input : ParserInput) extends Parser {
     Ident ~> Variable
   }
 
+  def ParseExpressionTerm : Rule1[JayExpression] = rule {
+    ParseValues | ParseVariable | ParseUnaryOperation
+  }
+  
   def ParseJayExpression : Rule1[JayExpression] = rule {
-    (ParseBinExpression | ParseValues | ParseVariable | ParseUnaryOperation)
+    (ParseBinExpression | ParseExpressionTerm)
   }
 
   def ParseUnaryOperation : Rule1[JayExpression] = rule {
@@ -141,7 +145,7 @@ class JayParser(val input : ParserInput) extends Parser {
   }
 
   def ParseBinExpression : Rule1[JayExpression] = rule {
-    ParseJayExpression ~ blnk ~ ParseBinOp ~ blnk ~ ParseJayExpression ~> 
+    ParseExpressionTerm ~ blnk ~ ParseBinOp ~ blnk ~ ParseJayExpression ~> 
       ((exp1 : JayExpression, op : String, exp2 : JayExpression) => 
         BinExpression(stringToBinOp(op), exp1, exp2))
   }
