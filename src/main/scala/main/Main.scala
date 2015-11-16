@@ -45,11 +45,17 @@ object Main {
         int m;
         n = 1;
         m = 2;
+        m = m + 2;
+        if (true) {
+          n = n * m;
+        } else {
+          n = n;
+        }
       }
       """
     
     
-    val parserResults = new JayParser(sampleCode).InputLine.run()
+    val parserResults = new JayParser(sampleFactorial).InputLine.run()
     println(parserResults)
     parserResults match {
       case Success(tree) => {
