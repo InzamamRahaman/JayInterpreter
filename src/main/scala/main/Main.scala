@@ -32,7 +32,9 @@ object Main {
         fib0 = 0;
         fib1 = 1;
         while (n > 0) {
-          
+          n = n - 1;
+          fib1 = fib1 + fib0;
+          fib0 = fib1;
         }
         result = fib0;
       }  
@@ -41,6 +43,7 @@ object Main {
     val sampleCode = 
       """
       void main() {
+        bool y;
         int n;
         int m;
         n = 1;
@@ -51,6 +54,7 @@ object Main {
         } else {
           n = n;
         }
+        y = m > n;
       }
       """
     
@@ -65,7 +69,7 @@ object Main {
           case Right(err) => println(err)
         }
       }
-      case Failure(err) => println(err)
+      case Failure(err) => err.printStackTrace()
     }
     
     val str = "x = x + 2;"

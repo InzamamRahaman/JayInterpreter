@@ -152,6 +152,7 @@ class JayParser(val input : ParserInput) extends Parser {
   
   // rules for parsing statements
   
+  
   def ParseMultipleStatements : Rule1[Seq[Node]] = rule {
     zeroOrMore(ParseStatement).separatedBy(blnk) ~>
     ((stmnts : Seq[Node]) => stmnts)
@@ -161,8 +162,13 @@ class JayParser(val input : ParserInput) extends Parser {
     ParseJayStatement ~> Statement
   }
   
+  def ParseJayBlock : Rule1[JayStatement] = rule {
+    zeroOrMore(ParseJayStatement) ~> 
+      ((xs : Seq[JayStatement]) => Block(xs))
+  }
+  
   def ParseJayStatement : Rule1[JayStatement] = rule {
-    (ParseAssignment | ParseConditional | ParseLoop)
+    (ParseLoop | ParseAssignment | ParseConditional)
   }
   
   def ParseAssignment : Rule1[JayStatement] = rule {
@@ -172,7 +178,7 @@ class JayParser(val input : ParserInput) extends Parser {
   
   def ParseConditional : Rule1[JayStatement] = rule {
     If ~ lpa ~ ParseJayExpression ~ blnk ~ rpa ~ lcb ~
-      ParseJayStatement ~ blnk ~ rcb ~ Else ~ lcb ~ ParseJayStatement ~
+      ParseBlock ~ blnk ~ rcb ~ Else ~ lcb ~ ParseBlock ~
       blnk ~ rcb ~> 
     ((exp : JayExpression, st1 : JayStatement, st2: JayStatement) =>
       Conditional(exp, st1, st2))
@@ -180,7 +186,7 @@ class JayParser(val input : ParserInput) extends Parser {
   
   def ParseLoop : Rule1[JayStatement] = rule {
     While ~ lpa ~ ParseJayExpression ~ blnk ~ rpa ~ lcb ~
-    ParseJayStatement ~ blnk ~ rcb ~> 
+      ParseBlock ~ blnk ~ rcb ~> 
     ((exp : JayExpression, st : JayStatement) => Loop(exp, st))
   }
   
