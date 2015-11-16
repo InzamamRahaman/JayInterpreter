@@ -19,6 +19,10 @@ object Interpreter {
 
   private def interpretNode(node : Node, env : Environment) : State = node match {
     case Declaration(name, typeOf) => Left(env.declare(name, typeOf))
+    case Statement(Assignment(name, exp)) => exp.internalEval(env) match {
+      case Left((res, env2)) => env2.set(name, res)
+      case Right(err) => Right(err)
+    }
     case _ => Right("full functionality not yet implemented")
   }
 

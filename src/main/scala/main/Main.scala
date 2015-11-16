@@ -1,9 +1,9 @@
 package main
 
-import interpreter._
+import interpreter.Interpreter
 import semantics._
 import parser._
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 
 
 /**
@@ -23,18 +23,47 @@ object Main {
     val sampleFactorial = 
       """
       void main() {
-        bool y;
-        int x;
-        
+        int n;
+        int fib0;
+        int fib1;
+        int temp;
+        int result;
+        n = 8;
+        fib0 = 0;
+        fib1 = 1;
+        while (n > 0) {
+          
+        }
+        result = fib0;
       }  
       """
     
+    val sampleCode = 
+      """
+      void main() {
+        int n;
+        int m;
+        n = 1;
+        m = 2;
+      }
+      """
     
-    val parserResults = new JayParser(sampleFactorial).InputLine.run()
+    
+    val parserResults = new JayParser(sampleCode).InputLine.run()
     println(parserResults)
+    parserResults match {
+      case Success(tree) => {
+        val state = Interpreter.interpret(tree)
+        state match {
+          case Left(env) => env.mapping.foreach(println)
+          case Right(err) => println(err)
+        }
+      }
+      case Failure(err) => println(err)
+    }
     
-    val str = "x + x * 2"
-    val res1 = new JayParser(str).ParseJayExpression.run()
+    val str = "x = x + 2;"
+    val res1 = new JayParser(str).ParseAssignment.run()
     println(res1)
 
   }
